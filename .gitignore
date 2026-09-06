@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.env
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# Caches y temporales
+cache/
+.codebase-memory/
+tmp/
+temp/
+
+# Ficheros del sistema operativo
+.DS_Store
+Thumbs.db
+Desktop.ini
