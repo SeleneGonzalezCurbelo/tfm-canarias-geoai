@@ -2,22 +2,22 @@
 """
 Script 02: Descarga de Indicadores del Censo 2021 (INE)
 - Descarga indicadores socioeconómicos a nivel de sección censal para Canarias (provincias 35 y 38).
-- Variables de empleo (actividad, paro, ocupación), educación (estudios superiores) y vivienda (superficie, antigüedad, régimen).
-- Almacenamiento en CSV para su posterior integración en el modelo analítico del TFM.
+- Variables de empleo, educación y vivienda.
+- Almacenamiento unificado en data/processed/censo/ y reporte en data/reports/.
 """
 
+import os
+import time
+import json
+import warnings
+from pathlib import Path
 import requests
 import pandas as pd
-import warnings
-import time
 
 warnings.filterwarnings('ignore')
 
 URL_API = 'https://www.ine.es/Censo2021/api'
 
-# Definición de consultas al Censo 2021 (Tabla, Métrica, Columna Destino, Descripción)
-# Nota: Métricas como desempleo, inactividad, ocupación, superficie y antigüedad de vivienda
-# no están disponibles a nivel de sección censal (ID_RESIDENCIA_N5) en la API del INE y han sido omitidas.
 QUERIES = [
     # === Empleo ===
     ('per.ppal', 'PCT_SACTIVOS',   'pct_activos',      'Porcentaje población activa'),
@@ -31,7 +31,15 @@ QUERIES = [
     ('hog', 'STAM_HOG',          'tamano_medio_hogar',  'Tamaño medio del hogar'),
 ]
 
-PROVINCIAS_CANARIAS = ('35 ', '38 ')  # Las Palmas y Santa Cruz de Tenerife
+PROVINCIAS_CANARIAS = ('35 ', '38 ')
+
+PROCESSED_DIR = Path("data/processed/censo")
+REPORTS_DIR = Path("data/reports")
+for d in [PROCESSED_DIR, REPORTS_DIR]:
+    d.mkdir(parents=True, exist_ok=True)
+
+t_start = time.time()
+stats = {"script": "02_descarga_censo_2021_ine"}
 
 def query_metric(table, metric, max_retries=3):
     """Consulta una métrica específica a través de la API del Censo 2021 del INE."""
@@ -47,10 +55,10 @@ def query_metric(table, metric, max_retries=3):
             if r.status_code == 200:
                 return r.json().get('data', [])
             else:
-                print(f'  HTTP {r.status_code}, reintentando {attempt+1}/{max_retries}...')
+                print(f'  [WARN] HTTP {r.status_code}, reintentando {attempt+1}/{max_retries}...')
                 time.sleep(5)
         except Exception as e:
-            print(f'  Error: {e}, reintentando {attempt+1}/{max_retries}...')
+            print(f'  [WARN] Error: {e}, reintentando {attempt+1}/{max_retries}...')
             time.sleep(10)
     return []
 
@@ -60,19 +68,18 @@ def parse_section_id(section_str):
         return section_str.split()[-1]
     return section_str
 
-print("Iniciando descarga de indicadores del Censo 2021 (INE)...")
+print("[INFO] Iniciando descarga de indicadores del Censo 2021 (INE)...")
 all_data = {}
 
 for table, metric, col_name, desc in QUERIES:
-    print(f'Descargando {desc} ({metric})...')
+    print(f'[INFO] Descargando {desc} ({metric})...')
     rows = query_metric(table, metric)
     if not rows:
-        print(f'  Aviso: No se obtuvieron datos para {metric}')
+        print(f'  [WARN] No se obtuvieron datos para {metric}')
         continue
 
-    # Filtrar exclusivamente para las provincias de Canarias
     can_rows = [d for d in rows if str(d.get('ID_RESIDENCIA_N2', '')).startswith(PROVINCIAS_CANARIAS)]
-    print(f'  Registros totales España: {len(rows)} | Canarias: {len(can_rows)}')
+    print(f'  [OK] Registros totales España: {len(rows)} | Canarias: {len(can_rows)}')
 
     for d in can_rows:
         cusec = parse_section_id(d.get('ID_RESIDENCIA_N5', ''))
@@ -85,15 +92,30 @@ for table, metric, col_name, desc in QUERIES:
 
 # Conversión a DataFrame de Pandas
 df = pd.DataFrame.from_records(list(all_data.values())).set_index('cusec')
-print(f'\nTotal secciones censales de Canarias procesadas: {len(df)}')
-print(f'Variables recopiladas: {list(df.columns)}')
+print(f'\n[OK] Total secciones censales de Canarias procesadas: {len(df)}')
+print(f'[INFO] Variables recopiladas: {list(df.columns)}')
 
-# Guardar resultados
-output_path = 'data/censo2021_canarias.csv'
-import os
-os.makedirs('data', exist_ok=True)
+# Guardar resultados unificados
+output_path = PROCESSED_DIR / "censo2021_canarias.csv"
 df.to_csv(output_path)
-print(f'Datos del Censo 2021 guardados exitosamente en {output_path}')
-print("=" * 50)
+print(f'[OK] Datos del Censo 2021 guardados exitosamente en {output_path}')
+
+stats["total_duration_sec"] = round(time.time() - t_start, 2)
+stats["secciones_count"] = len(df)
+stats["variables"] = list(df.columns)
+stats["nulls_summary"] = df.isna().sum().to_dict()
+stats["output_file"] = str(output_path)
+
+meta_path = REPORTS_DIR / "02_metadata.json"
+with open(meta_path, "w", encoding="utf-8") as f:
+    json.dump(stats, f, indent=4, ensure_ascii=False)
+
+print("\n" + "=" * 60)
+print("RESUMEN DE VALIDACIÓN - SCRIPT 02")
+print("=" * 60)
+print(f"• Secciones procesadas: {len(df):,}")
+print(f"• Fichero generado: {output_path} ({output_path.stat().st_size / 1024:.2f} KB)")
+print(f"• Tiempo total de ejecución: {stats['total_duration_sec']}s")
+print("=" * 60)
 print("SCRIPT 02 FINALIZADO CORRECTAMENTE")
-print("=" * 50)
+print("=" * 60)
