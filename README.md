@@ -72,3 +72,21 @@ python scripts/04_descarga_renta_media_hogar.py
 python scripts/05_poblacion_demografia.py
 python scripts/06_calculo_areas_y_tasa_paro.py
 ```
+
+---
+
+## 🔍 Verificación y Comprobación de Resultados
+
+Para comprobar que los scripts se han ejecutado correctamente y han generado los ficheros esperados:
+
+1. **Comprobar la creación de ficheros espaciales**:
+   * Verifica que existe el directorio `data/geo/secciones_canarias.gpkg` y `data/geo/pois_canarias.gpkg`.
+   * Verifica que las carpetas temáticas (`adrh_canarias/`, `renta_hogar/`, `poblacion_canarias/`, `data/outputs/`) contienen sus respectivos ficheros `.gpkg` y `.csv`.
+2. **Validación rápida en Python**:
+   Puedes abrir una consola de Python y comprobar rápidamente la integridad de los datos procesados:
+   ```python
+   import geopandas as gpd
+   gdf = gpd.read_file("data/geo/secciones_canarias.gpkg")
+   print(f"Total secciones censales de Canarias: {len(gdf)}")
+   print(gdf.head())
+   ```
