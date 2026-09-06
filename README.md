@@ -4,34 +4,103 @@
 ![GeoPandas](https://img.shields.io/badge/GeoPandas-Spatial-green.svg)
 ![OSMnx](https://img.shields.io/badge/OSMnx-OpenStreetMap-orange.svg)
 ![INE API](https://img.shields.io/badge/INE-OpenData-red.svg)
+![CRS](https://img.shields.io/badge/CRS-ETRS89%20%2F%20UTM%2028N-yellow.svg)
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
 ![TFE](https://img.shields.io/badge/TFE-Trabajo%20Fin%20de%20Estudios-purple.svg)
-
-## 📌 Descripción del Proyecto
-Este repositorio contiene el desarrollo técnico y metodológico correspondiente al **Trabajo Fin de Estudios (TFE)** enfocado en analizar el acceso espacial a recursos y servicios públicos (sanidad, educación, transporte y bienestar social) en el archipiélago canario, identificando áreas vulnerables y proponiendo optimizaciones basadas en datos geoespaciales y sociodemográficos.
 
 ---
 
-## ⚙️ Entorno y Requisitos
+## 📌 Descripción del Proyecto
 
-Para la ejecución de los scripts de procesamiento y análisis, se recomienda utilizar un entorno virtual de Python con las siguientes librerías geoespaciales y de análisis de datos:
+Este repositorio contiene el desarrollo técnico, metodológico y analítico correspondiente al **Trabajo Fin de Estudios (TFE)** enfocado en el **análisis de la accesibilidad espacial a los recursos y servicios públicos esenciales** (sanidad, educación, transporte y bienestar social) en el archipiélago canario. 
 
-### Dependencias Principales
-* `python` (>= 3.10)
-* `geopandas`
-* `pandas`
-* `osmnx`
-* `requests`
+El proyecto integra datos geoespaciales de alta resolución a nivel de **sección censal** (Provincias de Las Palmas - 35 y Santa Cruz de Tenerife - 38) combinados con indicadores sociodemográficos del **INE (Censo 2021)** y del **Atlas de Distribución de Renta de los Hogares (ADRH)**, con el objetivo de identificar áreas vulnerables, brechas territoriales y proponer optimizaciones basadas en ciencia de datos geoespaciales.
 
-### Instalación y Configuración del Entorno Virtual (`venv`)
+---
 
-Para aislar las dependencias del proyecto, sigue los siguientes pasos para crear y configurar el entorno virtual:
+## 📑 Tabla de Contenidos
 
-1. **Crear el entorno virtual** en la raíz del proyecto:
+- [📌 Descripción del Proyecto](#-descripción-del-proyecto)
+- [📂 Estructura del Repositorio](#-estructura-del-repositorio)
+- [⚙️ Requisitos del Sistema y Dependencias](#️-requisitos-del-sistema-y-dependencias)
+- [📥 Guía de Instalación](#-guía-de-instalación)
+- [🛠️ Pipeline Metodológico (`scripts/`)](#️-pipeline-metodológico-scripts)
+- [🚀 Guía de Uso y Ejecución](#-guía-de-uso-y-ejecución)
+- [🤝 Contribución](#-contribución)
+- [📄 Licencia](#-licencia)
+
+---
+
+## 📂 Estructura del Repositorio
+
+```text
+cap4-planteamiento/
+│
+├── data/
+│   ├── censo2021_canarias.csv          # Datos crudos / procesados del Censo 2021 INE
+│   ├── dataset_canarias.gpkg           # Capa vectorial unificada final
+│   ├── dataset_canarias_raw.csv        # Dataset tabular integrado preliminar
+│   ├── geo/
+│   │   ├── secciones_canarias.gpkg     # Delimitación oficial de secciones censales y centroides
+│   │   └── pois_canarias.gpkg          # Infraestructuras y Puntos de Interés (OSM)
+│   ├── outputs/
+│   │   ├── secciones_area_censo2021.gpkg / .csv # Áreas territoriales y tasas de paro
+│   │   └── secciones_area_paro.gpkg / .csv     # Métricas de desempleo por sección
+│   └── raw/
+│       └── distancias_servicios.csv    # Distancias mínimas calculadas a servicios
+│
+├── scripts/
+│   ├── 01_descarga_geometria_e_infraestructuras.py # Geometrías censales y POIs (OSMnx)
+│   ├── 02_descarga_censo_2021_ine.py             # Variables censales INE 2021
+│   ├── 03_descarga_adrh_renta_ine.py             # Indicadores ADRH (Gini, P80/P20, salarios)
+│   ├── 04_descarga_renta_media_hogar.py          # Renta neta media y pobreza
+│   ├── 05_poblacion_demografia.py                # Demografía, envejecimiento y dependencia
+│   ├── 06_calculo_areas_e_integracion_censo2021.py # Superficies UTM 28N y tasa de paro
+│   ├── adrh_canarias/                          # Outputs parciales ADRH (.gpkg, .csv, .geojson)
+│   ├── poblacion_canarias/                     # Outputs parciales demografía (.gpkg, .csv)
+│   └── renta_hogar/                            # Outputs parciales renta hogares (.gpkg, .csv)
+│
+├── cache/                                      # Caché de peticiones API y descargas
+├── venv/                                       # Entorno virtual de Python
+├── requirements.txt                            # Dependencias del proyecto
+├── LICENSE                                     # Licencia del proyecto (MIT)
+└── README.md                                   # Documentación principal del proyecto
+```
+
+---
+
+## ⚙️ Requisitos del Sistema y Dependencias
+
+### Prerrequisitos
+* **Python** `>= 3.10` instalado en el sistema.
+* Conexión a internet activa para la descarga de datos desde la API del INE y OpenStreetMap (`OSMnx`).
+
+### Dependencias Principales (`requirements.txt`)
+* `pandas` `>= 2.0.0`
+* `geopandas` `>= 0.12.0`
+* `osmnx` `>= 1.3.0`
+* `requests` `>= 2.28.0`
+* `shapely` `>= 2.0.0`
+* `pyogrio` `>= 0.5.0`
+
+---
+
+## 📥 Guía de Instalación
+
+Sigue estos pasos para clonar y configurar el entorno de desarrollo en tu equipo local:
+
+1. **Clonar el repositorio** (o acceder al directorio de trabajo):
+   ```bash
+   git clone <url-del-repositorio>
+   cd cap4-planteamiento
+   ```
+
+2. **Crear el entorno virtual** en la raíz del proyecto:
    ```bash
    python -m venv venv
    ```
 
-2. **Activar el entorno virtual**:
+3. **Activar el entorno virtual**:
    * En **Windows (PowerShell o CMD)**:
      ```bash
      .\venv\Scripts\Activate
@@ -41,7 +110,7 @@ Para aislar las dependencias del proyecto, sigue los siguientes pasos para crear
      source venv/bin/activate
      ```
 
-3. **Actualizar pip e instalar las dependencias necesarias** mediante el fichero `requirements.txt`:
+4. **Actualizar pip e instalar las dependencias**:
    ```bash
    python -m pip install --upgrade pip
    pip install -r requirements.txt
@@ -49,34 +118,24 @@ Para aislar las dependencias del proyecto, sigue los siguientes pasos para crear
 
 ---
 
-## 🛠️ Pipeline de Datos (`scripts/`)
+## 🛠️ Pipeline Metodológico (`scripts/`)
 
-La carpeta `scripts/` contiene los scripts modulares en orden secuencial (`01` a `06`) encargados de la adquisición, limpieza y enriquecimiento de los datos geoespaciales y sociodemográficos de Canarias (Provincias 35 y 38):
+El pipeline consta de 6 scripts modulares secuenciales ubicados en `scripts/`, diseñados para la adquisición, preprocesamiento, cálculo espacial y enriquecimiento sociodemográfico:
 
-| Orden | Script | Descripción Funcional |
+| Orden | Script | Descripción Funcional & Outputs Principales |
 | :---: | :--- | :--- |
-| **01** | `01_descarga_geometria_e_infraestructuras.py` | Descarga la geometría oficial de secciones censales de Canarias y extrae Puntos de Interés (POIs) de OpenStreetMap (hospitales, centros de salud, farmacias, colegios, paradas de autobús) calculando distancias mínimas y accesibilidad. |
-| **02** | `02_descarga_censo_2021_ine.py` | Descarga indicadores socioeconómicos detallados del Censo 2021 (empleo, actividad, paro, educación superior y características de vivienda) a nivel de sección censal mediante la API del INE. |
-| **03** | `03_descarga_adrh_renta_ine.py` | Descarga capas del Atlas de Distribución de Renta de los Hogares (ADRH INE), incluyendo índice de Gini, porcentaje de salario sobre renta bruta, pensiones y distribución de renta P80/P20. |
-| **04** | `04_descarga_renta_media_hogar.py` | Obtiene la renta neta media por persona y hogar, así como indicadores de riesgo de pobreza e ingresos bajos. |
-| **05** | `05_poblacion_demografia.py` | Obtiene la población total, densidad demográfica, porcentaje de población extranjera, índice de envejecimiento y tasa de dependencia. |
-| **06** | `06_calculo_areas_y_tasa_paro.py` | Calcula la superficie territorial en $km^2$ de cada sección censal mediante proyección UTM 28N e integra la tasa de desempleo oficial del Censo INE. |
+| **01** | `01_descarga_geometria_e_infraestructuras.py` | Descarga el seccionado censal oficial de Canarias y extrae POIs de OpenStreetMap (hospitales, centros de salud, farmacias, colegios, paradas de autobús) isla por isla. Calcula distancias mínimas. <br>**Outputs:** `data/geo/secciones_canarias.gpkg`, `data/geo/pois_canarias.gpkg`. |
+| **02** | `02_descarga_censo_2021_ine.py` | Consulta la API del INE para extraer variables clave del Censo 2021 (población activa, ocupados, parados, estudios superiores y tipología de viviendas) a nivel de sección censal. <br>**Outputs:** `data/censo2021_canarias.csv`. |
+| **03** | `03_descarga_adrh_renta_ine.py` | Obtiene indicadores del Atlas de Distribución de Renta de los Hogares (ADRH INE): Gini, P80/P20, peso de salarios y pensiones. <br>**Outputs:** `scripts/adrh_canarias/*`. |
+| **04** | `04_descarga_renta_media_hogar.py` | Extrae la renta neta media por persona y hogar, así como umbrales de riesgo de pobreza. <br>**Outputs:** `scripts/renta_hogar/*`. |
+| **05** | `05_poblacion_demografia.py` | Calcula población total, densidad demográfica, población extranjera, índice de envejecimiento y tasa de dependencia. <br>**Outputs:** `scripts/poblacion_canarias/*`. |
+| **06** | `06_calculo_areas_e_integracion_censo2021.py` | Proyecta las secciones censales a **ETRS89 / UTM Zona 28N** para calcular superficie en $km^2$ e integra la tasa de desempleo del Censo INE. <br>**Outputs:** `data/outputs/secciones_area_censo2021.gpkg`. |
 
 ---
 
-## 📁 Estructura de Datos e Inputs (`data/` y directorios de salida)
+## 🚀 Guía de Uso y Ejecución
 
-Durante la ejecución del pipeline de scripts, se generan y almacenan los siguientes recursos geoespaciales y tabulares para el análisis del TFE:
-
-* **`data/geo/`**: Almacena las capas vectoriales base, destacando `secciones_canarias.gpkg` (delimitación oficial de secciones censales con metadatos insulares y centroides) y `pois_canarias.gpkg` (infraestructuras públicas y servicios extraídos de OpenStreetMap).
-* **`data/raw/`**: Contiene ficheros intermedios de métricas y distancias calculadas a recursos (p.ej., `distancias_servicios.csv`).
-* **Directorios temáticos (`adrh_canarias/`, `renta_hogar/`, `poblacion_canarias/`, `data/outputs/`)**: Almacenan los datasets descargados y procesados de fuentes oficiales (INE, Censo 2021, ADRH) en formatos `.csv`, `.gpkg` y `.geojson` listos para el análisis espacial y modelado estadístico.
-
----
-
-## 🚀 Instrucciones de Ejecución
-
-Los scripts deben ejecutarse de forma secuencial para garantizar la correcta generación de las dependencias de datos espaciales:
+Los scripts deben ejecutarse de forma **estrictamente secuencial** para garantizar la correcta propagación de dependencias espaciales y tabulares:
 
 ```bash
 python scripts/01_descarga_geometria_e_infraestructuras.py
@@ -84,23 +143,40 @@ python scripts/02_descarga_censo_2021_ine.py
 python scripts/03_descarga_adrh_renta_ine.py
 python scripts/04_descarga_renta_media_hogar.py
 python scripts/05_poblacion_demografia.py
-python scripts/06_calculo_areas_y_tasa_paro.py
+python scripts/06_calculo_areas_e_integracion_censo2021.py
+```
+
+### Verificación de Resultados
+Para validar rápidamente la integridad de los datos generados:
+
+```python
+import geopandas as gpd
+from pathlib import Path
+
+gpkg_path = Path("data/geo/secciones_canarias.gpkg")
+if gpkg_path.exists():
+    gdf = gpd.read_file(gpkg_path)
+    print(f"✅ Capa cargada exitosamente.")
+    print(f"📊 Total de secciones censales en Canarias: {len(gdf)}")
+    print(f"🗺️ Sistema de Referencia de Coordenadas (CRS): {gdf.crs}")
+else:
+    print(f"❌ No se encontró el fichero en {gpkg_path}.")
 ```
 
 ---
 
-## 🔍 Verificación y Comprobación de Resultados
+## 🤝 Contribución
 
-Para comprobar que los scripts se han ejecutado correctamente y han generado los ficheros esperados:
+Las contribuciones al proyecto son bienvenidas. Si deseas proponer mejoras, correcciones metodológicas o nuevas capas analíticas:
 
-1. **Comprobar la creación de ficheros espaciales**:
-   * Verifica que existe el directorio `data/geo/secciones_canarias.gpkg` y `data/geo/pois_canarias.gpkg`.
-   * Verifica que las carpetas temáticas (`adrh_canarias/`, `renta_hogar/`, `poblacion_canarias/`, `data/outputs/`) contienen sus respectivos ficheros `.gpkg` y `.csv`.
-2. **Validación rápida en Python**:
-   Puedes abrir una consola de Python y comprobar rápidamente la integridad de los datos procesados:
-   ```python
-   import geopandas as gpd
-   gdf = gpd.read_file("data/geo/secciones_canarias.gpkg")
-   print(f"Total secciones censales de Canarias: {len(gdf)}")
-   print(gdf.head())
-   ```
+1. **Haz un Fork** del repositorio.
+2. **Crea una rama** para tu nueva funcionalidad (`git checkout -b feature/nueva-mejora`).
+3. **Realiza tus commits** asegurando la modularidad y buenas prácticas (`git commit -m 'Añadida nueva métrica de accesibilidad'`).
+4. **Sube los cambios** a tu rama (`git push origin feature/nueva-mejora`).
+5. Abre un **Pull Request** detallando los cambios introducidos.
+
+---
+
+## 📄 Licencia
+
+Este proyecto se encuentra distribuido bajo los términos de la **Licencia MIT**. Consulta el fichero [LICENSE](LICENSE) para más detalles.
