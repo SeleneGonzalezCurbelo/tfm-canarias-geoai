@@ -25,3 +25,23 @@ temp/
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Datos y ficheros geoespaciales (pesados para GitHub)
+data/
+*.csv
+*.gpkg
+*.shp
+*.shx
+*.dbf
+*.prj
+*.geojson
+*.topojson
+*.parquet
+*.feather
+*.xlsx
+*.xls
+*.sqlite
+*.gdb
+*.zip
+*.tar.gz
+
