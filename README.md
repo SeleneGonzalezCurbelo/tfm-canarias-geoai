@@ -22,16 +22,30 @@ Para la ejecución de los scripts de procesamiento y análisis, se recomienda ut
 * `osmnx`
 * `requests`
 
-### Instalación del Entorno
-```bash
-# Crear y activar entorno virtual
-python -m venv venv
-# En Windows:
-.\venv\Scripts\Activate
+### Instalación y Configuración del Entorno Virtual (`venv`)
 
-# Instalar dependencias necesarias
-pip install pandas geopandas osmnx requests
-```
+Para aislar las dependencias del proyecto, sigue los siguientes pasos para crear y configurar el entorno virtual:
+
+1. **Crear el entorno virtual** en la raíz del proyecto:
+   ```bash
+   python -m venv venv
+   ```
+
+2. **Activar el entorno virtual**:
+   * En **Windows (PowerShell o CMD)**:
+     ```bash
+     .\venv\Scripts\Activate
+     ```
+   * En **Linux / macOS**:
+     ```bash
+     source venv/bin/activate
+     ```
+
+3. **Actualizar pip e instalar las dependencias necesarias** mediante el fichero `requirements.txt`:
+   ```bash
+   python -m pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
 
 ---
 
