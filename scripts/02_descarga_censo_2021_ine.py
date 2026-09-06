@@ -128,7 +128,7 @@ def main() -> None:
         print(f'\n[OK] Total secciones censales de Canarias procesadas: {len(df_final)}')
         print(f'[INFO] Variables recopiladas: {list(df_final.columns)}')
 
-        assert df_final.index.str.len().eq(10).all(), "Existen códigos CUSEC que no tienen 10 dígitos"
+        assert (df_final.index.str.len() == 10).all(), "Existen códigos CUSEC que no tienen 10 dígitos"
         assert not df_final.index.duplicated().any(), "Existen CUSEC duplicados en el índice"
 
         output_path = PROCESSED_DIR / "censo2021_canarias.csv"
