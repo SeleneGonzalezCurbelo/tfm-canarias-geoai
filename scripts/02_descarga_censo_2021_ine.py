@@ -16,24 +16,19 @@ warnings.filterwarnings('ignore')
 URL_API = 'https://www.ine.es/Censo2021/api'
 
 # Definición de consultas al Censo 2021 (Tabla, Métrica, Columna Destino, Descripción)
+# Nota: Métricas como desempleo, inactividad, ocupación, superficie y antigüedad de vivienda
+# no están disponibles a nivel de sección censal (ID_RESIDENCIA_N5) en la API del INE y han sido omitidas.
 QUERIES = [
     # === Empleo ===
     ('per.ppal', 'PCT_SACTIVOS',   'pct_activos',      'Porcentaje población activa'),
-    ('per.ppal', 'PCT_SINACTIVOS', 'pct_inactivos',    'Porcentaje población inactiva'),
-    ('per.ppal', 'PCT_SPARADOS',   'pct_parados',      'Porcentaje población parada'),
-    ('per.ppal', 'PCT_SOCUPADOS',  'pct_ocupados',     'Porcentaje población ocupada'),
     # === Educación ===
     ('per.ppal', 'PCT_SESTSUP',       'pct_estudios_superiores', 'Porcentaje con estudios superiores'),
     ('per.ppal', 'MEDIA_SNIVEL_ESTU', 'nivel_estudios_medio',    'Nivel medio de estudios'),
     # === Vivienda ===
-    ('viv.fam', 'PCT_SVIVNOPPAL',     'pct_viviendas_no_principales', 'Porcentaje viviendas no principales'),
-    ('viv.fam', 'MEDIA_SSUPERFICIE',  'superficie_media_vivienda',    'Superficie media vivienda (m2)'),
-    ('viv.fam', 'MEDIA_SANTIGUEDAD',  'antiguedad_media_vivienda',    'Antigüedad media de la vivienda (años)'),
     ('viv.fam', 'SVIVIENDAS',         'total_viviendas',              'Número total de viviendas'),
     # === Hogares ===
     ('hog', 'SHOGARES',          'total_hogares',       'Número total de hogares'),
     ('hog', 'STAM_HOG',          'tamano_medio_hogar',  'Tamaño medio del hogar'),
-    ('hog', 'MEDIA_SSUPERFICIE_OCU', 'superficie_media_ocupante', 'Superficie media por ocupante'),
 ]
 
 PROVINCIAS_CANARIAS = ('35 ', '38 ')  # Las Palmas y Santa Cruz de Tenerife
