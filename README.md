@@ -133,6 +133,19 @@ El pipeline consta de 6 scripts modulares secuenciales ubicados en `scripts/`, d
 
 ---
 
+> [!WARNING]
+> **Disponibilidad de la API (Overpass / OSM)**
+>
+> La descarga de POIs del script `01` depende de la API pública de Overpass (`overpass-api.de/api/interpreter`, `timeout=180s`). En momentos de carga puede fallar por isla, p. ej.:
+>
+> ```text
+> [INFO] Descargando Fuerteventura... Error: HTTPSConnectionPool(host='overpass-api.de', port=443): Max retries exceeded with url: /api/interpreter (Caused by ConnectTimeoutError(... 'Connection to overpass-api.de timed out. (connect timeout=180)'))
+> ```
+>
+> No es un error del código: el script captura el fallo por isla y continúa, pero `data/geo/pois_canarias.gpkg` quedará incompleto. Basta con reintentar `python scripts/01_descarga_geometria_e_infraestructuras.py` más tarde (reutiliza la caché en `data/geo/`); verifica la cobertura por `isla` antes de seguir al paso 02.
+
+---
+
 ## 🚀 Guía de Uso y Ejecución
 
 Los scripts deben ejecutarse de forma **estrictamente secuencial** para garantizar la correcta propagación de dependencias espaciales y tabulares:
