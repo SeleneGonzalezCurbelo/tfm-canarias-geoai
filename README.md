@@ -46,11 +46,13 @@ cap4-planteamiento/
 │   ├── outputs/
 │   │   ├── secciones_area_censo2021.gpkg / .csv # Áreas territoriales y tasas de paro
 │   │   └── secciones_area_paro.gpkg / .csv     # Métricas de desempleo por sección
-│   └── raw/
-│       └── distancias_servicios.csv    # Distancias mínimas calculadas a servicios
+│   ├── raw/
+│   │   ├── distancias_servicios.csv    # Distancias mínimas calculadas a servicios
+│   │   └── overpass_manual/            # GeoJSON manuales de Overpass Turbo (<Isla>.geojson)
 │
 ├── scripts/
 │   ├── 01_descarga_geometria_e_infraestructuras.py # Geometrías censales y POIs (OSMnx)
+│   ├── 01b_fusion_pois_manuales.py               # Fusiona GeoJSON manuales a pois_canarias.gpkg
 │   ├── 02_descarga_censo_2021_ine.py             # Variables censales INE 2021
 │   ├── 03_descarga_adrh_renta_ine.py             # Indicadores ADRH (Gini, P80/P20, salarios)
 │   ├── 04_descarga_renta_media_hogar.py          # Renta neta media y pobreza
@@ -125,6 +127,7 @@ El pipeline consta de 6 scripts modulares secuenciales ubicados en `scripts/`, d
 | Orden | Script | Descripción Funcional & Outputs Principales |
 | :---: | :--- | :--- |
 | **01** | `01_descarga_geometria_e_infraestructuras.py` | Descarga el seccionado censal oficial de Canarias y extrae POIs de OpenStreetMap (hospitales, centros de salud, farmacias, colegios, paradas de autobús) isla por isla. Calcula distancias mínimas. <br>**Outputs:** `data/geo/secciones_canarias.gpkg`, `data/geo/pois_canarias.gpkg`. |
+| **01b** *(opcional)* | `01b_fusion_pois_manuales.py` | Fusiona los GeoJSON descargados manualmente en Overpass Turbo (`data/raw/overpass_manual/<Isla>.geojson`) a `data/geo/pois_canarias.gpkg` (`EPSG:4326`, columnas `geometry,amenity,isla`; con backup automático). Úsalo solo si `01` falla por `timeout` de Overpass. |
 | **02** | `02_descarga_censo_2021_ine.py` | Consulta la API del INE para extraer variables clave del Censo 2021 (población activa, ocupados, parados, estudios superiores y tipología de viviendas) a nivel de sección censal. <br>**Outputs:** `data/censo2021_canarias.csv`. |
 | **03** | `03_descarga_adrh_renta_ine.py` | Obtiene indicadores del Atlas de Distribución de Renta de los Hogares (ADRH INE): Gini, P80/P20, peso de salarios y pensiones. <br>**Outputs:** `scripts/adrh_canarias/*`. |
 | **04** | `04_descarga_renta_media_hogar.py` | Extrae la renta neta media por persona y hogar, así como umbrales de riesgo de pobreza. <br>**Outputs:** `scripts/renta_hogar/*`. |
@@ -143,6 +146,22 @@ El pipeline consta de 6 scripts modulares secuenciales ubicados en `scripts/`, d
 > ```
 >
 > No es un error del código: el script captura el fallo por isla y continúa, pero `data/geo/pois_canarias.gpkg` quedará incompleto. Basta con reintentar `python scripts/01_descarga_geometria_e_infraestructuras.py` más tarde (reutiliza la caché en `data/geo/`); verifica la cobertura por `isla` antes de seguir al paso 02.
+>
+> **Descarga manual (si el error persiste):** usa [Overpass Turbo](https://overpass-turbo.eu/) con 1 consulta por categoría, `Exportar > GeoJSON`, y guarda cada isla como `data/raw/overpass_manual/<Isla>.geojson`. Ejemplo:
+>
+> ```ql
+> [out:json][timeout:60];
+> (node["amenity"="school"]({{bbox}});way["amenity"="school"]({{bbox}});relation["amenity"="school"]({{bbox}}););out center;
+> ```
+>
+> Repite con `hospital, clinic, doctors, pharmacy` y `highway=bus_stop`, y fusiona con:
+>
+> ```bash
+> python scripts/01b_fusion_pois_manuales.py --check-only  # valida sin escribir
+> python scripts/01b_fusion_pois_manuales.py              # genera data/geo/pois_canarias.gpkg (con backup)
+> ```
+>
+> El script `01` lo reutilizará (`[OK] POIs existentes`).
 
 ---
 
