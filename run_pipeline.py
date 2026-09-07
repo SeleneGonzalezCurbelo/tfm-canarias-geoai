@@ -121,6 +121,17 @@ def build_pipeline() -> list[PipelineStep]:
             ],
             metadata=data / "reports" / "06_metadata.json",
         ),
+        PipelineStep(
+            id="07",
+            name="Fusion final EDA/entrenamiento",
+            script=SCRIPTS_DIR / "07_fusion_dataset_final.py",
+            requires=[data / "geo" / "secciones_canarias.gpkg"],
+            outputs=[
+                data / "outputs" / "dataset_final.csv",
+                data / "outputs" / "dataset_final.gpkg",
+            ],
+            metadata=data / "reports" / "07_metadata.json",
+        ),
     ]
 
 

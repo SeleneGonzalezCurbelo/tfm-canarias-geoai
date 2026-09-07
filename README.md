@@ -58,6 +58,7 @@ cap4-planteamiento/
 │   ├── 04_descarga_renta_media_hogar.py          # Renta neta media y pobreza
 │   ├── 05_poblacion_demografia.py                # Demografía, envejecimiento y dependencia
 │   ├── 06_calculo_areas_e_integracion_censo2021.py # Superficies UTM 28N y tasa de paro
+│   ├── 07_fusion_dataset_final.py              # Fusión final del dataset para EDA y entrenamiento
 │   ├── adrh_canarias/                          # Outputs parciales ADRH (.gpkg, .csv, .geojson)
 │   ├── poblacion_canarias/                     # Outputs parciales demografía (.gpkg, .csv)
 │   └── renta_hogar/                            # Outputs parciales renta hogares (.gpkg, .csv)
@@ -122,7 +123,7 @@ Sigue estos pasos para clonar y configurar el entorno de desarrollo en tu equipo
 
 ## 🛠️ Pipeline Metodológico (`scripts/`)
 
-El pipeline consta de 6 scripts modulares secuenciales ubicados en `scripts/`, diseñados para la adquisición, preprocesamiento, cálculo espacial y enriquecimiento sociodemográfico:
+El pipeline consta de 7 scripts modulares secuenciales ubicados en `scripts/`, diseñados para la adquisición, preprocesamiento, cálculo espacial y enriquecimiento sociodemográfico:
 
 | Orden | Script | Descripción Funcional & Outputs Principales |
 | :---: | :--- | :--- |
@@ -133,6 +134,7 @@ El pipeline consta de 6 scripts modulares secuenciales ubicados en `scripts/`, d
 | **04** | `04_descarga_renta_media_hogar.py` | Extrae la renta neta media por persona y hogar, así como umbrales de riesgo de pobreza. <br>**Outputs:** `scripts/renta_hogar/*`. |
 | **05** | `05_poblacion_demografia.py` | Calcula población total, densidad demográfica, población extranjera, índice de envejecimiento y tasa de dependencia. <br>**Outputs:** `scripts/poblacion_canarias/*`. |
 | **06** | `06_calculo_areas_e_integracion_censo2021.py` | Proyecta las secciones censales a **ETRS89 / UTM Zona 28N** para calcular superficie en $km^2$ e integra la tasa de desempleo del Censo INE. <br>**Outputs:** `data/outputs/secciones_area_censo2021.gpkg`. |
+| **07** | `07_fusion_dataset_final.py` | Fusiona todas las fuentes previas (geometría, distancias, demografía, censo, renta y ADRH) en un dataset integrado final, aplicando imputación de valores faltantes y cálculo de densidades. <br>**Outputs:** `data/outputs/dataset_final.gpkg`, `data/outputs/dataset_final.csv`. |
 
 ---
 
@@ -176,6 +178,7 @@ python scripts/03_descarga_adrh_renta_ine.py
 python scripts/04_descarga_renta_media_hogar.py
 python scripts/05_poblacion_demografia.py
 python scripts/06_calculo_areas_e_integracion_censo2021.py
+python scripts/07_fusion_dataset_final.py
 ```
 
 ### Verificación de Resultados
