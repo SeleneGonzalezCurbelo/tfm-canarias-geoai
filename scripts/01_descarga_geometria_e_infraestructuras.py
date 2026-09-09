@@ -67,31 +67,60 @@ execution_stats: Dict[str, Any] = {"script": "01_descarga_geometria_e_infraestru
 
 
 def asignar_isla(cusec: Union[str, int]) -> str:
-    """Asigna la isla correspondiente según el código INE de sección censal (CUSEC)."""
+    """Asigna la isla correspondiente según el código INE de sección censal (CUSEC).
+
+    CUSEC (10 dígitos) = CPRO(2) + CMUN(3) + CDIS(2) + CSEC(3).
+    Los códigos de municipio NO son contiguos por isla (orden alfabético
+    provincial), así que se usa el diccionario oficial completo.
+    Fuente de verdad para nmun: data/processed/poblacion/poblacion_canarias.csv.
+    """
     cod = str(cusec).zfill(10)
-    prov = cod[:2]
-    if prov == "38":
-        mapa = {
-            "38001": "El Hierro", "38002": "El Hierro", "38003": "La Palma",
-            "38004": "La Palma", "38005": "La Palma", "38006": "La Gomera",
-            "38007": "La Gomera", "38008": "Tenerife", "38009": "Tenerife",
-            "38010": "Tenerife"
-        }
-        return mapa.get(cod[:5], "Tenerife")
-    
-    mapa = {
-        "35001": "Fuerteventura", "35002": "Lanzarote", "35003": "Lanzarote",
-        "35004": "Lanzarote", "35005": "Gran Canaria", "35006": "Gran Canaria",
-        "35007": "Fuerteventura", "35008": "Gran Canaria", "35009": "Lanzarote",
-        "35010": "Gran Canaria", "35011": "Fuerteventura", "35012": "Fuerteventura",
-        "35013": "Gran Canaria", "35014": "Fuerteventura", "35015": "Lanzarote",
-        "35016": "Gran Canaria", "35017": "Gran Canaria", "35018": "Gran Canaria",
-        "35019": "Lanzarote", "35020": "Gran Canaria", "35021": "Gran Canaria",
-        "35022": "Gran Canaria", "35023": "Lanzarote", "35024": "Lanzarote",
-        "35025": "Fuerteventura", "35026": "Gran Canaria", "35027": "Gran Canaria",
-        "35028": "Gran Canaria", "35029": "Lanzarote",
+    cmun = cod[:5]
+    # Provincia 38 Santa Cruz de Tenerife (54 municipios + 38901 El Pinar)
+    mapa_38 = {
+        "38001": "Tenerife", "38002": "La Gomera", "38003": "La Gomera",
+        "38004": "Tenerife", "38005": "Tenerife", "38006": "Tenerife",
+        "38007": "La Palma", "38008": "La Palma", "38009": "La Palma",
+        "38010": "Tenerife", "38011": "Tenerife", "38012": "Tenerife",
+        "38013": "El Hierro", "38014": "La Palma", "38015": "Tenerife",
+        "38016": "La Palma", "38017": "Tenerife", "38018": "Tenerife",
+        "38019": "Tenerife", "38020": "Tenerife", "38021": "La Gomera",
+        "38022": "Tenerife", "38023": "Tenerife", "38024": "La Palma",
+        "38025": "Tenerife", "38026": "Tenerife", "38027": "La Palma",
+        "38028": "Tenerife", "38029": "La Palma", "38030": "La Palma",
+        "38031": "Tenerife", "38032": "Tenerife", "38033": "La Palma",
+        "38034": "Tenerife", "38035": "Tenerife", "38036": "La Gomera",
+        "38037": "La Palma", "38038": "Tenerife", "38039": "Tenerife",
+        "38040": "Tenerife", "38041": "Tenerife", "38042": "Tenerife",
+        "38043": "Tenerife", "38044": "Tenerife", "38045": "La Palma",
+        "38046": "Tenerife", "38047": "La Palma", "38048": "El Hierro",
+        "38049": "La Gomera", "38050": "La Gomera", "38051": "Tenerife",
+        "38052": "Tenerife", "38053": "La Palma", "38901": "El Hierro",
     }
-    return mapa.get(cod[:5], "Gran Canaria")
+    if cod[:2] == "38":
+        return mapa_38.get(cmun, "Tenerife")
+
+    # Provincia 35 Las Palmas (34 municipios)
+    mapa_35 = {
+        "35001": "Gran Canaria", "35002": "Gran Canaria",
+        "35003": "Fuerteventura", "35004": "Lanzarote",
+        "35005": "Gran Canaria", "35006": "Gran Canaria",
+        "35007": "Fuerteventura", "35008": "Gran Canaria",
+        "35009": "Gran Canaria", "35010": "Lanzarote",
+        "35011": "Gran Canaria", "35012": "Gran Canaria",
+        "35013": "Gran Canaria", "35014": "Fuerteventura",
+        "35015": "Fuerteventura", "35016": "Gran Canaria",
+        "35017": "Fuerteventura", "35018": "Lanzarote",
+        "35019": "Gran Canaria", "35020": "Gran Canaria",
+        "35021": "Gran Canaria", "35022": "Gran Canaria",
+        "35023": "Gran Canaria", "35024": "Lanzarote",
+        "35025": "Gran Canaria", "35026": "Gran Canaria",
+        "35027": "Gran Canaria", "35028": "Lanzarote",
+        "35029": "Lanzarote", "35030": "Fuerteventura",
+        "35031": "Gran Canaria", "35032": "Gran Canaria",
+        "35033": "Gran Canaria", "35034": "Lanzarote",
+    }
+    return mapa_35.get(cmun, "Gran Canaria")
 
 
 def main() -> None:
